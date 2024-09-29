@@ -2,6 +2,7 @@
  * $Id: postcmds.c 212 2011-05-15 19:24:23Z nasmussen $
  */
 
+#include <ctype.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
