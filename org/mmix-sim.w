@@ -2879,6 +2879,9 @@ working simulator.
 @<Global variables@>@;
 @<Subroutines@>@;
 @#
+
+extern void postcmds_perform(int, char**);
+
 int main(argc,argv)
   int argc;
   char *argv[];

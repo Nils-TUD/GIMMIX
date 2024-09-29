@@ -42,6 +42,8 @@ char *config_file_name, *prog_file_name;
 @<Global variables@>@;
 @<Subroutines@>@;
 
+extern void postcmds_perform(int, char**);
+
 int main(argc,argv)
   int argc;
   char *argv[];
