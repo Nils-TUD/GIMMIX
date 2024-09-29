@@ -2,7 +2,7 @@
  * $Id: term.c 218 2011-06-04 15:46:40Z nasmussen $
  */
 
-#define _XOPEN_SOURCE
+#define _XOPEN_SOURCE 500
 
 #include <stdio.h>
 #include <stdlib.h>
