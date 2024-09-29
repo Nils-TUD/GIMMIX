@@ -37,7 +37,8 @@ $(BIN): $(GENOBJ)	$(COBJ) $(LIBS)
 
 $(LEXGEN):	$(LEXSRC)
 	@echo "	" GEN $@
-	@flex -o $(LEXGEN) < $(LEXSRC)
+	# define _POSIX_C_SOURCE for fileno
+	@flex -D_POSIX_C_SOURCE=1 -o $(LEXGEN) < $(LEXSRC)
 
 $(BISONGEN):	$(BISONSRC)
 	@echo "	" GEN $@
