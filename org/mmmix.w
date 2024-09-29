@@ -113,7 +113,7 @@ and \Hex{fedcba9876543210} into location \Hex{0123456789b0}.
 octa cur_loc;
 octa cur_dat;
 bool new_chunk;
-char buffer[BUF_SIZE];
+char fbuffer[BUF_SIZE];
 FILE *prog_file;
 
 @ @<Input a rudimentary hexadecimal file@>=
@@ -126,16 +126,16 @@ FILE *prog_file;
   }
   new_chunk=true;
   while (1) {
-    if (!fgets(buffer,BUF_SIZE,prog_file)) break;
-    if (buffer[strlen(buffer)-1]!='\n') {
-      fprintf(stderr,"Panic: Hexadecimal file line too long: `%s...'!\n",buffer);
+    if (!fgets(fbuffer,BUF_SIZE,prog_file)) break;
+    if (fbuffer[strlen(fbuffer)-1]!='\n') {
+      fprintf(stderr,"Panic: Hexadecimal file line too long: `%s...'!\n",fbuffer);
 @.Hexadecimal file line...@>
       exit(-3);
     }
-    if (buffer[12]==':') @<Change the current location@>@;
-    else if (buffer[0]==' ') @<Read an octabyte and advance |cur_loc|@>@;
+    if (fbuffer[12]==':') @<Change the current location@>@;
+    else if (fbuffer[0]==' ') @<Read an octabyte and advance |cur_loc|@>@;
     else {
-      fprintf(stderr,"Panic: Improper hexadecimal file line: `%s'!\n",buffer);
+      fprintf(stderr,"Panic: Improper hexadecimal file line: `%s'!\n",fbuffer);
 @.Improper hexadecimal...@>
       exit(-3);
     }
@@ -147,8 +147,8 @@ FILE *prog_file;
 
 @ @<Change the current location@>=
 {
-  if (sscanf(buffer,"%4x%8x",&cur_loc.h,&cur_loc.l)!=2) {
-    fprintf(stderr,"Panic: Improper hexadecimal file location: `%s'!\n",buffer);
+  if (sscanf(fbuffer,"%4x%8x",&cur_loc.h,&cur_loc.l)!=2) {
+    fprintf(stderr,"Panic: Improper hexadecimal file location: `%s'!\n",fbuffer);
 @.Improper hexadecimal...@>
     exit(-3);
   }
@@ -157,8 +157,8 @@ FILE *prog_file;
 
 @ @<Read an octabyte and advance |cur_loc|@>=
 {
-  if (sscanf(buffer+1,"%8x%8x",&cur_dat.h,&cur_dat.l)!=2) {
-    fprintf(stderr,"Panic: Improper hexadecimal file data: `%s'!\n",buffer);
+  if (sscanf(fbuffer+1,"%8x%8x",&cur_dat.h,&cur_dat.l)!=2) {
+    fprintf(stderr,"Panic: Improper hexadecimal file data: `%s'!\n",fbuffer);
 @.Improper hexadecimal...@>
     exit(-3);
   }
@@ -368,8 +368,8 @@ speed of instruction issue.
 while (1) {
   printf("mmmix> ");@+fflush(stdout);
 @.mmmix>@>
-  fgets(buffer,BUF_SIZE,stdin);
-  switch (buffer[0]) {
+  fgets(fbuffer,BUF_SIZE,stdin);
+  switch (fbuffer[0]) {
 default: what_say:
   printf("Eh? Sorry, I don't understand. (Type h for help)\n");
   continue;
@@ -408,14 +408,14 @@ case 'h': case '?': printf("The interactive commands are as follows:\n");
 @ @<Cases...@>=
 case '0': case '1': case '2': case '3': case '4':
 case '5': case '6': case '7': case '8': case '9':
-  if (sscanf(buffer,"%d",&n)!=1) goto what_say;
+  if (sscanf(fbuffer,"%d",&n)!=1) goto what_say;
   printf("Running %d at time %d",n,ticks.l);
   if (bp.h==(tetra)-1 && bp.l==(tetra)-1) printf("\n");
   else printf(" with breakpoint %08x%08x\n",bp.h,bp.l);
   MMIX_run(n,bp);@+continue;
-case '@@': inst_ptr.o=read_hex(buffer+1);@+inst_ptr.p=NULL;@+continue;
-case 'b': bp=read_hex(buffer+1);@+continue;
-case 'v': verbose=read_hex(buffer+1).l;@+continue;
+case '@@': inst_ptr.o=read_hex(fbuffer+1);@+inst_ptr.p=NULL;@+continue;
+case 'b': bp=read_hex(fbuffer+1);@+continue;
+case 'v': verbose=read_hex(fbuffer+1).l;@+continue;
 
 @ @<Glob...@>=
 int n,m; /* temporary integer */
@@ -451,22 +451,22 @@ octa read_hex(p)
 }
 
 @ @<Cases...@>=
-case '-':@+ if (sscanf(buffer+1,"%d",&n)!=1 || n<0) goto what_say;
+case '-':@+ if (sscanf(fbuffer+1,"%d",&n)!=1 || n<0) goto what_say;
   if (cool<=hot) m=hot-cool;@+else m=(hot-reorder_bot)+1+(reorder_top-cool);
   if (n>m) deissues=m;@+else deissues=n;
   continue;
-case 'l':@+ if (sscanf(buffer+1,"%d",&n)!=1 || n<0) goto what_say;
+case 'l':@+ if (sscanf(fbuffer+1,"%d",&n)!=1 || n<0) goto what_say;
   if (n>=lring_size) goto what_say;
   printf("  l[%d]=%08x%08x\n",n,l[n].o.h,l[n].o.l);@+continue;
-case 'm': tmp=mem_read(read_hex(buffer+1));
-  printf("  m[%s]=%08x%08x\n",buffer+1,tmp.h,tmp.l);@+continue;
+case 'm': tmp=mem_read(read_hex(fbuffer+1));
+  printf("  m[%s]=%08x%08x\n",fbuffer+1,tmp.h,tmp.l);@+continue;
 
 @ The register stack pointers, rO and rS, are not kept up to date
 in the |g| array. Therefore we have to deduce their values by
 examining the pipeline.
 
 @<Cases...@>=
-case 'g':@+ if (sscanf(buffer+1,"%d",&n)!=1 || n<0) goto what_say;
+case 'g':@+ if (sscanf(fbuffer+1,"%d",&n)!=1 || n<0) goto what_say;
   if (n>=256) goto what_say;
   if (n==rO || n==rS) {
     if (hot==cool) /* pipeline empty */
@@ -487,17 +487,17 @@ static octa sl3(y) /* shift left by 3 bits */
 }
 
 @ @<Cases...@>=
-case 'I': print_cache(buffer[1]=='T'? ITcache: Icache,false);@+continue;
-case 'D': print_cache(buffer[1]=='T'? DTcache: Dcache,@/
-       buffer[1]=='*');@+continue;
-case 'S': print_cache(Scache,buffer[1]=='*');@+continue;
+case 'I': print_cache(fbuffer[1]=='T'? ITcache: Icache,false);@+continue;
+case 'D': print_cache(fbuffer[1]=='T'? DTcache: Dcache,@/
+       fbuffer[1]=='*');@+continue;
+case 'S': print_cache(Scache,fbuffer[1]=='*');@+continue;
 case 'p': print_pipe();@+print_locks();@+continue;
 case 's': print_stats();@+continue;
-case 'i':@+ if (sscanf(buffer+1,"%d",&n)==1) g[rI].o=incr(zero_octa,n);
+case 'i':@+ if (sscanf(fbuffer+1,"%d",&n)==1) g[rI].o=incr(zero_octa,n);
   continue;
 
 @ @<Cases...@>=
-case 'f': tmp=read_hex(buffer+1);
+case 'f': tmp=read_hex(fbuffer+1);
  {
    register fetch* new_tail;
    if (tail==fetch_bot) new_tail=fetch_top;
