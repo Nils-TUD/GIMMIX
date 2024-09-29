@@ -54,7 +54,8 @@ doc:    $(PDFS)
 	dvips -n8 $(TEX)/mmix-sim.dvi -o $(DOC)/mmix-sim-intro.ps
 
 $(BUILD)/%.c: %.w
-	if test -r $*.ch; then ctangle $< $*.ch; else ctangle $<; fi
+	# ignore errors from ctangle if the resulting file is empty
+	if ! ctangle $< && [ -s "$@" ]; then exit 1; fi
 	mv $(patsubst %.w,%.c,$<) $(BUILD)
 	if [ -f $(patsubst %.w,%.h,$<) ]; then mv $(patsubst %.w,%.h,$<) $(BUILD); fi
 
