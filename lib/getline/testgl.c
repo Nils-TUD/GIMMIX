@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "getline/getline.h"
 
-main()
+int main()
 /* 
  * just echo user input lines, letting user edit them and move through
  * history list
@@ -14,4 +14,5 @@ main()
 	gl_histadd(p);
 	fputs(p, stdout);
     } while (*p != 0);
+    return 0;
 }
